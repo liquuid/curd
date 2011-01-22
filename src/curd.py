@@ -135,10 +135,9 @@ class Curd(gtk.Window):
 
         # titulo da janela
 
-        self.set_title("curd 0.02a")
+        self.set_title("curd 0.03a")
         # borda entre os widgets e a borda da janela
         self.set_border_width(10)
-        # nome = "joao"
         # Desenha tudo...
 
         self.show_all()
@@ -151,8 +150,8 @@ class Curd(gtk.Window):
 
         # Ajuste fino das opcoes a partir do item selecionado do menu
 
-        cformat = formatos[codec*2+1]
-        print  formatos[codec*2] , formatos[codec*2+1]
+        cformat = formatos[ codec * 2 + 1]
+        print  formatos[ codec * 2] , formatos[ codec * 2 + 1]
 
         ### Backend: ffmpeg
         if cformat == '3gp':
