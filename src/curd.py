@@ -20,7 +20,7 @@ Copyleft (CC) 2007 Fernando Henrique R Silva
  Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
 Autores: liquuid - pontape inicial
-	 nighto  - alinhamento geral
+     nighto  - alinhamento geral
 
 """
 
@@ -89,7 +89,7 @@ class Curd(gtk.Window):
         # desenha flecha
         self.flecha, self.flecha_mask = \
             create_pixmap(self, flecha_xpm)
-
+        self.filein = ''
         # Define imagem da flechinha que ficara dentro da caixa sensivel ao drag n drop
         image = gtk.Image()
         image.set_from_pixmap(self.flecha, self.flecha_mask)
@@ -108,14 +108,13 @@ class Curd(gtk.Window):
         menu = gtk.combo_box_new_text()
         menu.set_wrap_width(1)
 
-        for i in range(0,len(formatos),2):
-                menu.append_text(formatos[i])
+        for item in formatos:
+                menu.append_text(item)
+
         menu.set_active(0)
-        menu.connect('changed',self.get_active_text)
-        codec  = menu.get_active_text()
+        menu.connect('changed', self.get_active_text)
+        self.codec  = menu.get_active_text()
         table.attach(menu,0 , 1 , 1, 2)
-
-
 
         # desenha botao "Converte"
 
@@ -143,15 +142,8 @@ class Curd(gtk.Window):
         self.show_all()
 
     def converte(self,nome):
-        global codec
-        global formatos
-        global arqin
-        global cformat
-
         # Ajuste fino das opcoes a partir do item selecionado do menu
-
-        cformat = formatos[ codec * 2 + 1]
-        print  formatos[ codec * 2] , formatos[ codec * 2 + 1]
+        cformat = formatos[self.codec]
 
         ### Backend: ffmpeg
         if cformat == '3gp':
@@ -233,7 +225,8 @@ class Curd(gtk.Window):
                 comando.append(inputflag)
         except NameError:
             pass
-        comando.append(arqin.split('\r')[0]) ### Se o arquivo tiver ' ', ele le como '%20' e da pau. '-' tambm. Alguma ideia?
+        # TODO: Se o arquivo tiver ' ', ele le como '%20' e da pau. '-' tambm. Alguma ideia?
+        comando.append(self.filein.split('\r')[0])
         try:
             if formato:
                 if backend == "ffmpeg":
@@ -280,7 +273,9 @@ class Curd(gtk.Window):
                 comando.append(outputflag)
         except NameError:
             pass
-        comando.append(arqin.split('\r')[0]+"."+ext) ## Seria interessante tirar a extensao original.
+
+        # TODO: Seria interessante tirar a extensao original
+        comando.append(self.filein.split('\r')[0]+"."+ext)
         try:
             if ssw:
                 comando.append(ssw)
@@ -303,21 +298,11 @@ class Curd(gtk.Window):
         #saida = subprocess.Popen(comando, stdout=subprocess.PIPE).communicate()[0]
         #print saida
 
-        #print 'ffmpeg -i '+arqin.strip(":")[-1]+' -'+formatos[codec*3+2]+' '+formatos[codec*3+1]
-
-
-
-        # Funcao para recuperar qual eh a posicao na lista
-
 
     def get_active_text(self, menu):
-        global codec
-        model = menu.get_model()
-        active = menu.get_active()
-        codec = active
-        if active  < 0:
-            return None
-        return active
+        print menu.get_active_text()
+        self.codec = menu.get_active_text()
+        return menu.get_active_text()
 
 # Funcoes drag n drop tiradas dos exemplos do tutorial oficial pygtk
 
@@ -417,10 +402,7 @@ class Curd(gtk.Window):
 
     def target_drag_data_received(self, img, context, x, y, data, info, time):
        if data.format == 8:
-           global arqin
-           arqin = data.data
-           #print arqin
-           #print 'Received "%s" in sandbox' % data.data
+           self.filein = data.data
            context.finish(True, False, time)
        else:
            context.finish(False, False, time)
